@@ -1,5 +1,8 @@
-{ 
-    "version" : "1.1",
-    "prefix" : ">",
-    "token": ""
+{
+	"version": "1.2",
+	"prefix": ">",
+	"token": "",
+	"language": "en",
+	"admin_rolename": "",
+    "bot_id": "1308036618942156861"
 }

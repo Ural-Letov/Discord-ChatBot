@@ -7,12 +7,27 @@ let rooms = require('./rooms.json');
 
 client.login(config.token);
 
+const localisation = {
+    ru: require('./localisation/ru.json'),
+    en: require('./localisation/en.json'),
+}
+
 //<--VARIABLES-->//
 function getRandomNumber (min, max) {
     return Math.floor(Math.random() * (max - min)) + min
 }
 
-const messages = [`Have you ever talk to women IRL? I dont think so 🤣🫵`, `EVERYONE STFU $user is talking`, `The smartest discord user i ever seen 😭🙏`, `Go touch some grass`, `Lol didn't read`, `Cry about it`, `Based gigachad 😈`, `: )`, `: (`, `All users of this chat are dead because of your message`, `Womp womp 😭`, `Yes, i'm`, `It happens`, `No, you`, `Yap, me`, `Real`, `I'm confused`, `No, i'm`, `Yes, you`, `don't care, thx`, `Suck it up`, `- 😭 - You.\n- 😎 - Me.\n- 🤯 - You.\n- 🤣🔨 - Me))).`];
+const messages = [
+    localisation[config.language]['brainrot_answer_01'], localisation[config.language]['brainrot_answer_02'],
+    localisation[config.language]['brainrot_answer_03'], localisation[config.language]['brainrot_answer_04'],
+    localisation[config.language]['brainrot_answer_05'], localisation[config.language]['brainrot_answer_06'],
+    localisation[config.language]['brainrot_answer_07'], `: )`, `: (`, localisation[config.language]['brainrot_answer_08'],
+    localisation[config.language]['brainrot_answer_09'], localisation[config.language]['brainrot_answer_10'],
+    localisation[config.language]['brainrot_answer_11'], localisation[config.language]['brainrot_answer_12'],
+    localisation[config.language]['brainrot_answer_13'], localisation[config.language]['brainrot_answer_14'],
+    localisation[config.language]['brainrot_answer_15'], localisation[config.language]['brainrot_answer_16'],
+    localisation[config.language]['brainrot_answer_17'], localisation[config.language]['brainrot_answer_18'],
+    localisation[config.language]['brainrot_answer_19'], localisation[config.language]['brainrot_answer_20']];
 const reactions = [`💯`, `😈`, `😴`, `🥵`, `🥴`, `🙉`, `😐`, `💦`, `🤯`, `🤑`, `🤮`, `🤬`, `🤡`, `💀`, `💩`, `🔥`, `🤢`, `👍`, `👎`, `👀`]
 
 //<--MAIN FUNCTIONS-->//
@@ -24,45 +39,95 @@ client.on("message", async message => {
 
     if (message.content == config.prefix + `ping`)
     {
-        message.channel.send(`Response time: ${client.ping} ms`)
+        message.channel.send(`${localisation[config.language]['ping_command']} ${client.ping} ${localisation[config.language]['ping_ms']}`)
     }
-
     else if (message.content == config.prefix + `help`) {
-        message.channel.send(`**BASIC COMMANDS:**\n\`>ping\` - Measures discord response latency\n\n**ENTERTAINMENT COMMANDS:**\n\`>probability (event)\` - Calculates the percentage of probability of a given event.\n\`>choose (first) or (second)\` - Selects the best option from the two offered.\n\n**GAME COMMANDS:**\n\`>tic-tac-toe\` - Creates a room for a game of tic-tac-toe.\n\`>tic-tac-toe-join (room id)\` - Joins the created room.\n\`>tic-tac-toe-move (cell number)\` - Moves to a cell by cell number\n\n**OTHER:**\nAsk a random question and get a random answer. Just put a question mark in your post.`);
+        message.channel.send(localisation[config.language]['help_command']);
+    }
+    else if (message.content.includes(config.prefix + `cl`)) {
+        let code = message.content.split(` `);
+        code = code[1];
+        code = code.toLowerCase();
+
+        if (!message.member.roles.find('name', config.admin_rolename)) {
+            await message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['cl_error_01']}`);
+
+            return;
+        }
+
+        if (!code) {
+            await message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['cl_error_02']}`);
+
+            return;
+        }
+
+        if (!["ru", "en"].includes(code)) {
+            await message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['cl_error_03']}`);
+
+            return;
+        }
+
+        if (config.language == code) {
+            await message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['cl_successful']}`);
+
+            return;
+        }
+
+        config.language = code;
+
+        await message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['cl_successful']}`);
+
+        fileSystem.writeFileSync('./config.json', JSON.stringify(config, null, '\t'));
     }
 
     //<--REPLIES AND FUNCTIONS-->//
-    else if (message.content.includes(`@1308036618942156861`))
+    else if (message.content.includes(`@${config.bot_id}`))
     {
-        let nameResponce = ['Yup?', 'Yeah?', 'I`m here', 'Sup?', 'What’s crackin’?', `Hey!`, `Yo!`]
+        let nameResponce = [
+            localisation[config.language]['ping_answer_01'], localisation[config.language]['ping_answer_02'],
+            localisation[config.language]['ping_answer_03'], localisation[config.language]['ping_answer_04'],
+            localisation[config.language]['ping_answer_05'], localisation[config.language]['ping_answer_06'],
+            localisation[config.language]['ping_answer_07']]
 
         message.channel.send(`<@${message.author.id}>, ${nameResponce[getRandomNumber(0, nameResponce.length - 1)]}`)
     }
-    else if (new RegExp(`${config.prefix}probability`, 'ig').test(message.content))
+    else if (new RegExp(`${config.prefix}${localisation[config.language]['probability_name']}`, 'ig').test(message.content))
     {
         let event = message.content.split(' ');
         event.splice(0, 1);
         event = event.join(' ');
         let random = getRandomNumber(0, 100);
 
-        message.channel.send(`<@${message.author.id}>, I think the probability that ${event} equales ${random}%`);
+        message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['probability_prefix']} ${event} ${localisation[config.language]['probability_suffix']} ${random}%`);
     }
-    else if (new RegExp(`${config.prefix}choose`, 'ig').test(message.content))
+    else if (new RegExp(`${config.prefix}${localisation[config.language]['choose_name']}`, 'ig').test(message.content))
     {
         let event = message.content.split(' ');
         event.splice(0, 1);
         event = event.join(' ');
-        let variant_0 = event.split(' or ')[0];
-        let variant_1 = event.split(' or ')[1];
+        let variant_0 = event.split(localisation[config.language]['choose_splitter'])[0];
+        let variant_1 = event.split(localisation[config.language]['choose_splitter'])[1];
         let random = getRandomNumber(0, 100);
 
-        message.channel.send(`<@${message.author.id}>, I think that ${random > 50 ? variant_0 : variant_1} is better than ${random > 50 ? variant_1 : variant_0}`)
+        message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['choose_prefix']} ${random > 50 ? variant_0 : variant_1} ${localisation[config.language]['choose_suffix']} ${random > 50 ? variant_1 : variant_0}`)
     }
     else if (/(\?)/ig.test(message.content))
     {
         let random = getRandomNumber(0, 100);
-        let positivePhrases = ['Yea', 'Maybe', '100%', 'Duh', 'Rhetorical question', 'Absolutely', 'Hell yeah!']
-        let negativePhrases = ['Nah', 'No idea', 'No way', 'Zero chance', 'As if', 'Of course not', 'Go pound sand']
+
+        let positivePhrases = [
+            localisation[config.language]['question_positive_01'], localisation[config.language]['question_positive_02'],
+            localisation[config.language]['question_positive_03'], localisation[config.language]['question_positive_04'],
+            localisation[config.language]['question_positive_05'], localisation[config.language]['question_positive_06'],
+            localisation[config.language]['question_positive_07']
+        ];
+
+        let negativePhrases = [
+            localisation[config.language]['question_negative_01'], localisation[config.language]['question_negative_02'],
+            localisation[config.language]['question_negative_03'], localisation[config.language]['question_negative_04'],
+            localisation[config.language]['question_negative_05'], localisation[config.language]['question_negative_06'],
+            localisation[config.language]['question_negative_07']
+        ];
 
         if (random > 0 && random <= 50) {
             message.channel.send(`<@${message.author.id}>, ${positivePhrases[getRandomNumber(0, positivePhrases.length - 1)]}`)
@@ -77,11 +142,11 @@ client.on("message", async message => {
         let userId = message.author.id;
 
         if (rooms.find(item => item.roomId === userId)) {
-            return message.channel.send(`<@${message.author.id}>, room has already been created!`);
+            return message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['tic_tac_toe_error_01']}`);
         }
 
         if (rooms.find(item => item.cross === userId || item.zero === userId)) {
-            return message.channel.send(`<@${message.author.id}>, you're already in the game.!`);
+            return message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['tic_tac_toe_error_02']}`);
         }
 
         let roomParameters = {
@@ -135,7 +200,7 @@ client.on("message", async message => {
 
         rooms.push(roomParameters);
 
-        await message.channel.send(`<@${message.author.id}>, room has been created! In order to join, write a command \`>tic-tac-toe-join ${userId}\`.`);
+        await message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['tic_tac_toe_successful']} ${userId}\`.`);
 
         fileSystem.writeFileSync('./rooms.json', JSON.stringify(rooms, null, '\t'));
     }
@@ -145,22 +210,22 @@ client.on("message", async message => {
         let userId = message.author.id;
 
         if (!rooms.find(item => item.roomId === roomId)) {
-            return message.channel.send(`<@${message.author.id}>, room doesn't exist.!`);
+            return message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['tic-tac-toe-join_error_01']}`);
         }
         
         if (rooms.find(item => item.cross === userId || item.zero === userId)) {
-            return message.channel.send(`<@${message.author.id}>, you're already in game!`);
+            return message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['tic-tac-toe-join_error_02']}`);
         }
 
         let room = rooms.find(item => item.roomId === roomId);
 
         if (room.cross != null && room.zero != null) {
-            return message.channel.send(`<@${message.author.id}>, game is already full!`);
+            return message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['tic-tac-toe-join_error_03']}`);
         }
 
         room.zero = userId;
 
-        message.channel.send(`<@${message.author.id}>, you've successfully joined room!`);
+        message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['tic-tac-toe-join_successful']}`);
         await message.channel.send(room.field.map(item => {
             return `| ${item.value ? (item.value == 0 ? '❌' : '⭕') : '⬛'}${[2, 5, 8].includes(item.index) ? '|\n' : ' '}`
         }).join('')).then((m) => {
@@ -180,13 +245,13 @@ client.on("message", async message => {
         let userItem = room.moveBy === userId ? (room.cross === userId ? 0 : 1) : 1;
 
         if (!room) {
-            return message.channel.send(`<@${userId}>, you're not in any game.!`);
+            return message.channel.send(`<@${userId}>, ${localisation[config.language]['tic-tac-toe-move_error_01']}`);
         }
 
         if (room.moveBy != userId) {
             message.delete();
             
-            let messageRef = await message.channel.send(`<@${userId}>, it's not your move right now!`);
+            let messageRef = await message.channel.send(`<@${userId}>, ${localisation[config.language]['tic-tac-toe-move_error_02']}`);
 
             setTimeout(() => {
                 messageRef.delete();
@@ -198,7 +263,7 @@ client.on("message", async message => {
         if (cell.value != null) {
             message.delete();
 
-            let messageRef = await message.channel.send(`<@${userId}>, this cell is already taken!`);
+            let messageRef = await message.channel.send(`<@${userId}>, ${localisation[config.language]['tic-tac-toe-move_error_03']}`);
             
             setTimeout(() => {
                 messageRef.delete();
@@ -231,7 +296,7 @@ client.on("message", async message => {
         )
         {
             await message.channel.fetchMessage(room.message).then(async message => {
-                await message.channel.send(`<@${room.cross}> win!`);
+                await message.channel.send(`<@${room.cross}> ${localisation[config.language]['tic-tac-toe-move_win']}`);
 
                 rooms.splice(rooms.indexOf(room), 1);
             });
@@ -254,7 +319,7 @@ client.on("message", async message => {
         )
         {
             await message.channel.fetchMessage(room.message).then(async message => {
-                await message.channel.send(`<@${room.zero}> win!`);
+                await message.channel.send(`<@${room.zero}> ${localisation[config.language]['tic-tac-toe-move_win']}`);
 
                 rooms.splice(rooms.indexOf(room), 1);
             });
@@ -267,7 +332,7 @@ client.on("message", async message => {
         // Draw
         if (room.field.filter(item => item.value == null).length == 0) {
             await message.channel.fetchMessage(room.message).then(async message => {
-                await message.channel.send(`Draw!`);
+                await message.channel.send(`${localisation[config.language]['tic-tac-toe-move_draw']}`);
 
                 rooms.splice(rooms.indexOf(room), 1);
             });

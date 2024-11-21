@@ -23,3 +23,4 @@
 # VERSION 1.2 (21/11/24)
 - Add russian and english localisations
 - Add `cl` command (role-based)
+- Add localisation-based commands

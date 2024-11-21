@@ -1,9 +1,9 @@
 <h1 align="center">💬 Discord-ChatBot 💬</h1>
 
-## 🔽 Last Updates:
+## 🔽 | Last Updates:
 - [Changelog](https://github.com/Ural-Letov/Discord-ChatBot/blob/main/CHANGELOG.md)
 
-## 🔽 Soon will be added:
+## 🔽 | Soon will be added:
 - More replies to messages
 - More reactions to messages
 - Joke and anecdotes parser
@@ -12,14 +12,14 @@
 - Giving roles based on users activity
 - Function of generating degraded images and demotivators
 
-## 🔽 Prerequisites:
+## 🔽 | Prerequisites:
 - [Node.js 18+](https://nodejs.org/en/download/)
 - [discord.js](https://discord.js.org/)
 - [NPM](https://www.npmjs.com/)
 
 > NOTE: NPM is downloaded automatically with Node, but if you want to explore it more, I've attached a link to the site for you.
 
-## 🔽 Installation Guide:
+## 🔽 | Installation Guide:
 ```bash
 $ npm i # Install all dependencies
 $ npm start # Start the bot

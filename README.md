@@ -1,19 +1,16 @@
 <h1 align="center">💬 Discord-ChatBot 💬</h1>
 
 ## 🔽 Last Updates:
-- New replies to messages
-- New reactions to messages
-- Answering questions
-- Choosing between two options
-- Calculating the probability of an event
-- And a lot of new things coming up
+- [Changelog](https://github.com/Ural-Letov/Discord-ChatBot/blob/main/CHANGELOG.md)
 
 ## 🔽 Soon will be added:
 - More replies to messages
 - More reactions to messages
 - Joke and anecdotes parser
-- Degraded images
-- Demotivators
+- More entertaining features
+- Bot learning on users messages
+- Giving roles based on users activity
+- Function of generating degraded images and demotivators
 
 ## 🔽 Prerequisites:
 - [Node.js 18+](https://nodejs.org/en/download/)

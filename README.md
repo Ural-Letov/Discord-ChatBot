@@ -1,7 +1,7 @@
 <h1 align="center">💬 Discord-ChatBot 💬</h1>
 
 ## 🔽 | Last Updates:
-- [Changelog](https://github.com/Ural-Letov/Discord-ChatBot/blob/main/CHANGELOG.md)
+- All last updates and fixes are in [Changelog](https://github.com/Ural-Letov/Discord-ChatBot/blob/main/CHANGELOG.md)
 
 ## 🔽 | Soon will be added:
 - More replies to messages

@@ -22,3 +22,8 @@
 - Add russian and english localisations
 - Add `cl` command (role-based)
 - Add localisation-based commands
+
+# VERSIOM 1.3 (22/11/24)
+- Add dialog-based bot training mode
+- Add ignoring JSON file changes by bot to eliminate constant restarts
+- Add `learn-mode` command (role-based)

@@ -1,8 +1,9 @@
 {
-	"version": "1.2",
+	"version": "1.3",
 	"prefix": ">",
 	"token": "",
 	"language": "en",
 	"admin_rolename": "",
-    "bot_id": "1308036618942156861"
+	"bot_id": "1308036618942156861",
+	"learn_mode": false
 }

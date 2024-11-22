@@ -2,8 +2,11 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const fileSystem = require("fs");
+const stringSimilarity = require('string-similarity');
+
 let config = require("./config.json");
 let rooms = require('./rooms.json');
+let memory = require('./memory.json');
 
 client.login(config.token);
 
@@ -35,7 +38,43 @@ client.on("message", async message => {
     if(message.author.bot) return;
 
     //<--HELP AND OTHER COMMANDS-->//
-    console.log(message.content);
+    console.log(message.reference);
+
+    if (config.learn_mode) {
+        if (message.content.includes(config.prefix + `learn-mode`)) {
+            
+        }
+        else {
+            if (!message.reference) {
+                let object = memory.find(item => item.start_chain === message.content);
+
+                if (!object) {
+                    memoryObject = {
+                        start_chain: message.content,
+                        end_chain: []
+                    }
+
+                    memory.push(memoryObject);
+                }
+                else {
+                    console.info('ignored');
+                }
+            }
+            else {
+                await message.channel.fetchMessage(message.reference.messageID).then(m => {
+                    let object = memory.find(item => item.start_chain === m.content);
+
+                    if (object) {
+                        object.end_chain.push(message.content);
+                    }
+                });
+            }
+
+            fileSystem.writeFileSync('./memory.json', JSON.stringify(memory, null, '\t'));
+            
+            return;
+        }
+    }
 
     if (message.content == config.prefix + `ping`)
     {
@@ -79,6 +118,41 @@ client.on("message", async message => {
 
         fileSystem.writeFileSync('./config.json', JSON.stringify(config, null, '\t'));
     }
+    else if (message.content.includes(config.prefix + `learn-mode`)) {
+        let code = message.content.split(` `);
+        code = code[1]
+        code = code.toLowerCase();
+
+        if (!message.member.roles.find('name', config.admin_rolename)) {
+            await message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['learn_mode_error_01']}`);
+
+            return;
+        }
+
+        if (!code) {
+            await message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['learn_mode_error_02']}`);
+
+            return;
+        } 
+        
+        if (!["off", "on"].includes(code)) {
+            await message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['learn_mode_error_03']}`);
+
+            return;
+        }
+
+        if (config.learn_mode == code) {
+            await message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['learn_mode_successful']} (${config.learn_mode ? localisation[config.language]['learn_mode_successful_01'] : localisation[config.language]['learn_mode_successful_02']})`);
+
+            return;
+        }
+
+        config.learn_mode = code == "on" ? true : false;
+
+        await message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['learn_mode_successful']} (${config.learn_mode ? localisation[config.language]['learn_mode_successful_01'] : localisation[config.language]['learn_mode_successful_02']})`);
+
+        fileSystem.writeFileSync('./config.json', JSON.stringify(config, null, '\t'));
+    }
 
     //<--REPLIES AND FUNCTIONS-->//
     else if (message.content.includes(`@${config.bot_id}`))
@@ -87,7 +161,8 @@ client.on("message", async message => {
             localisation[config.language]['ping_answer_01'], localisation[config.language]['ping_answer_02'],
             localisation[config.language]['ping_answer_03'], localisation[config.language]['ping_answer_04'],
             localisation[config.language]['ping_answer_05'], localisation[config.language]['ping_answer_06'],
-            localisation[config.language]['ping_answer_07']]
+            localisation[config.language]['ping_answer_07']
+        ]
 
         message.channel.send(`<@${message.author.id}>, ${nameResponce[getRandomNumber(0, nameResponce.length - 1)]}`)
     }
@@ -110,31 +185,6 @@ client.on("message", async message => {
         let random = getRandomNumber(0, 100);
 
         message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['choose_prefix']} ${random > 50 ? variant_0 : variant_1} ${localisation[config.language]['choose_suffix']} ${random > 50 ? variant_1 : variant_0}`)
-    }
-    else if (/(\?)/ig.test(message.content))
-    {
-        let random = getRandomNumber(0, 100);
-
-        let positivePhrases = [
-            localisation[config.language]['question_positive_01'], localisation[config.language]['question_positive_02'],
-            localisation[config.language]['question_positive_03'], localisation[config.language]['question_positive_04'],
-            localisation[config.language]['question_positive_05'], localisation[config.language]['question_positive_06'],
-            localisation[config.language]['question_positive_07']
-        ];
-
-        let negativePhrases = [
-            localisation[config.language]['question_negative_01'], localisation[config.language]['question_negative_02'],
-            localisation[config.language]['question_negative_03'], localisation[config.language]['question_negative_04'],
-            localisation[config.language]['question_negative_05'], localisation[config.language]['question_negative_06'],
-            localisation[config.language]['question_negative_07']
-        ];
-
-        if (random > 0 && random <= 50) {
-            message.channel.send(`<@${message.author.id}>, ${positivePhrases[getRandomNumber(0, positivePhrases.length - 1)]}`)
-        }
-        else {
-            message.channel.send(`<@${message.author.id}>, ${negativePhrases[getRandomNumber(0, negativePhrases.length - 1)]}`)
-        }
     }
 
     //<--TIC-TAC-TOE GAME-->//
@@ -341,19 +391,61 @@ client.on("message", async message => {
         fileSystem.writeFileSync('./rooms.json', JSON.stringify(rooms, null, '\t'));
     }
     
-    //<--BASIC REPLIES-->//
+    //<--BASIC AND ADAPTIVE REPLIES-->//
     else
     {
-        let needInvoice = true;
-        let reply = messages[getRandomNumber(0, messages.length - 1)]
+        let object = memory.find(item => stringSimilarity.compareTwoStrings(message.content, item.start_chain) >= 0.6 || message.content.includes(item.start_chain));
 
-        if (/(\$user)/ig.test(reply)) {
-            needInvoice = false;
-            reply = reply.replace(/(\$user)/ig, `<@${message.author.id}>`);
+        if (object && object.end_chain.length > 0) {
+            let randomAnswer;
+
+            if (object.end_chain.length > 1) {
+                randomAnswer = object.end_chain[getRandomNumber(0, object.end_chain.length - 1)]
+            }
+            else {
+                randomAnswer = object.end_chain[0]
+            }
+
+            message.channel.send(`<@${message.author.id}>, ${randomAnswer}`);
         }
+        else {
+            if (/(\?)/ig.test(message.content)) {
+                let random = getRandomNumber(0, 100);
 
-        message.react(`${reactions[getRandomNumber(0, reactions.length - 1)]}`)
-        message.channel.send(`${needInvoice ? `<@${message.author.id}>,` : ''} ${reply}`);
+                let positivePhrases = [
+                    localisation[config.language]['question_positive_01'], localisation[config.language]['question_positive_02'],
+                    localisation[config.language]['question_positive_03'], localisation[config.language]['question_positive_04'],
+                    localisation[config.language]['question_positive_05'], localisation[config.language]['question_positive_06'],
+                    localisation[config.language]['question_positive_07']
+                ];
+
+                let negativePhrases = [
+                    localisation[config.language]['question_negative_01'], localisation[config.language]['question_negative_02'],
+                    localisation[config.language]['question_negative_03'], localisation[config.language]['question_negative_04'],
+                    localisation[config.language]['question_negative_05'], localisation[config.language]['question_negative_06'],
+                    localisation[config.language]['question_negative_07']
+                ];
+
+                if (random > 0 && random <= 50) {
+                    message.channel.send(`<@${message.author.id}>, ${positivePhrases[getRandomNumber(0, positivePhrases.length - 1)]}`)
+                }
+                else {
+                    message.channel.send(`<@${message.author.id}>, ${negativePhrases[getRandomNumber(0, negativePhrases.length - 1)]}`)
+                }
+            }
+            else {
+                let needInvoice = true;
+                let reply = messages[getRandomNumber(0, messages.length - 1)]
+
+                if (/(\$user)/ig.test(reply)) {
+                    needInvoice = false;
+                    reply = reply.replace(/(\$user)/ig, `<@${message.author.id}>`);
+                }
+
+                message.react(`${reactions[getRandomNumber(0, reactions.length - 1)]}`);
+                message.channel.send(`${needInvoice ? `<@${message.author.id}>,` : ''} ${reply}`);
+            }
+        }
     }
 });
 

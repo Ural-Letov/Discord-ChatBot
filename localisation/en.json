@@ -65,5 +65,11 @@
     "brainrot_answer_20": "- 😭 - You.\n- 😎 - Me.\n- 🤯 - You.\n- 🤣🔨 - Me))).",
     "probability_name": "probability",
     "choose_name": "choose",
-    "choose_splitter": " or "
+    "choose_splitter": " or ",
+    "learn_mode_error_01": "not enough rights to change the learn mode status! 🚨",
+    "learn_mode_error_02": "state for learn mode was not specified! 🚨",
+    "learn_mode_error_03": "incorrect learn mode state type! 🚨",
+    "learn_mode_successful": "learn mode successfully switched! ✅",
+    "learn_mode_successful_01": "enabled",
+    "learn_mode_successful_02": "disabled"
 }

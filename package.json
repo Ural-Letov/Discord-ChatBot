@@ -1,12 +1,12 @@
 {
-  "name": "bot",
+  "name": "Discord-ChatBot",
   "version": "1.0.0",
-  "description": "",
+  "description": "An entertaining discord bot that replies to messages, chooses from two options and shows the probability.",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ."
+    "start": "nodemon . -e js"
   },
-  "author": "",
+  "author": "Daniil Romanov, Maksim Ruletow",
   "license": "ISC",
   "dependencies": {
     "discord.js": "^11.5.1",

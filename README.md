@@ -8,7 +8,6 @@
 - More reactions to messages
 - Joke and anecdotes parser
 - More entertaining features
-- Bot learning on users messages
 - Giving roles based on users activity
 - Function of generating degraded images and demotivators
 

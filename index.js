@@ -1,36 +1,24 @@
-//<--BASIS-->//
+//<--BASIS WITH VARIABLES-->//
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const fileSystem = require("fs");
 const stringSimilarity = require('string-similarity');
 
-let config = require("./config.json");
-let rooms = require('./rooms.json');
-let memory = require('./memory.json');
+let config = JSON.parse(fileSystem.readFileSync("./config.json"));
+let rooms = JSON.parse(fileSystem.readFileSync('./rooms.json'));
+let memory = JSON.parse(fileSystem.readFileSync('./memory.json'));
 
 client.login(config.token);
 
 const localisation = {
-    ru: require('./localisation/ru.json'),
-    en: require('./localisation/en.json'),
+    ru: JSON.parse(fileSystem.readFileSync('./localisation/ru.json')),
+    en: JSON.parse(fileSystem.readFileSync('./localisation/en.json')),
 }
 
-//<--VARIABLES-->//
 function getRandomNumber (min, max) {
-    return Math.floor(Math.random() * (max - min)) + min
+    return Math.floor(Math.random() * (max - min)) + min;
 }
 
-const messages = [
-    localisation[config.language]['brainrot_answer_01'], localisation[config.language]['brainrot_answer_02'],
-    localisation[config.language]['brainrot_answer_03'], localisation[config.language]['brainrot_answer_04'],
-    localisation[config.language]['brainrot_answer_05'], localisation[config.language]['brainrot_answer_06'],
-    localisation[config.language]['brainrot_answer_07'], `: )`, `: (`, localisation[config.language]['brainrot_answer_08'],
-    localisation[config.language]['brainrot_answer_09'], localisation[config.language]['brainrot_answer_10'],
-    localisation[config.language]['brainrot_answer_11'], localisation[config.language]['brainrot_answer_12'],
-    localisation[config.language]['brainrot_answer_13'], localisation[config.language]['brainrot_answer_14'],
-    localisation[config.language]['brainrot_answer_15'], localisation[config.language]['brainrot_answer_16'],
-    localisation[config.language]['brainrot_answer_17'], localisation[config.language]['brainrot_answer_18'],
-    localisation[config.language]['brainrot_answer_19'], localisation[config.language]['brainrot_answer_20']];
 const reactions = [`💯`, `😈`, `😴`, `🥵`, `🥴`, `🙉`, `😐`, `💦`, `🤯`, `🤑`, `🤮`, `🤬`, `🤡`, `💀`, `💩`, `🔥`, `🤢`, `👍`, `👎`, `👀`]
 
 //<--MAIN FUNCTIONS-->//
@@ -38,8 +26,6 @@ client.on("message", async message => {
     if(message.author.bot) return;
 
     //<--HELP AND OTHER COMMANDS-->//
-    console.log(message.reference);
-
     if (config.learn_mode) {
         if (message.content.includes(config.prefix + `learn-mode`)) {
             
@@ -68,20 +54,21 @@ client.on("message", async message => {
                         object.end_chain.push(message.content);
                     }
                 });
-            }
+            } 
 
             fileSystem.writeFileSync('./memory.json', JSON.stringify(memory, null, '\t'));
             
             return;
         }
     }
+    
 
     if (message.content == config.prefix + `ping`)
     {
         message.channel.send(`${localisation[config.language]['ping_command']} ${client.ping} ${localisation[config.language]['ping_ms']}`)
     }
     else if (message.content == config.prefix + `help`) {
-        message.channel.send(localisation[config.language]['help_command']);
+        message.channel.send(`<@${message.author.id}>, ${localisation[config.language]['help_command']} ${!message.member.roles.find('name', config.admin_rolename) ? '' : localisation[config.language]['help_command_admin']}`);
     }
     else if (message.content.includes(config.prefix + `cl`)) {
         let code = message.content.split(` `);
@@ -164,7 +151,7 @@ client.on("message", async message => {
             localisation[config.language]['ping_answer_07']
         ]
 
-        message.channel.send(`<@${message.author.id}>, ${nameResponce[getRandomNumber(0, nameResponce.length - 1)]}`)
+        message.channel.send(`<@${message.author.id}>, ${nameResponce[getRandomNumber(0, nameResponce.length)]}`)
     }
     else if (new RegExp(`${config.prefix}${localisation[config.language]['probability_name']}`, 'ig').test(message.content))
     {
@@ -306,6 +293,8 @@ client.on("message", async message => {
             setTimeout(() => {
                 messageRef.delete();
             }, 2000);
+
+            return;
         }
 
         let cell = room.field[index]
@@ -317,7 +306,9 @@ client.on("message", async message => {
             
             setTimeout(() => {
                 messageRef.delete();
-            }, 2000);            
+            }, 2000);
+            
+            return;
         }
 
         cell.value = userItem;
@@ -400,7 +391,7 @@ client.on("message", async message => {
             let randomAnswer;
 
             if (object.end_chain.length > 1) {
-                randomAnswer = object.end_chain[getRandomNumber(0, object.end_chain.length - 1)]
+                randomAnswer = object.end_chain[getRandomNumber(0, object.end_chain.length)]
             }
             else {
                 randomAnswer = object.end_chain[0]
@@ -409,6 +400,19 @@ client.on("message", async message => {
             message.channel.send(`<@${message.author.id}>, ${randomAnswer}`);
         }
         else {
+            let messages = [
+                localisation[config.language]['brainrot_answer_01'], localisation[config.language]['brainrot_answer_02'],
+                localisation[config.language]['brainrot_answer_03'], localisation[config.language]['brainrot_answer_04'],
+                localisation[config.language]['brainrot_answer_05'], localisation[config.language]['brainrot_answer_06'],
+                localisation[config.language]['brainrot_answer_07'], `: )`, `: (`, localisation[config.language]['brainrot_answer_08'],
+                localisation[config.language]['brainrot_answer_09'], localisation[config.language]['brainrot_answer_10'],
+                localisation[config.language]['brainrot_answer_11'], localisation[config.language]['brainrot_answer_12'],
+                localisation[config.language]['brainrot_answer_13'], localisation[config.language]['brainrot_answer_14'],
+                localisation[config.language]['brainrot_answer_15'], localisation[config.language]['brainrot_answer_16'],
+                localisation[config.language]['brainrot_answer_17'], localisation[config.language]['brainrot_answer_18'],
+                localisation[config.language]['brainrot_answer_19'], localisation[config.language]['brainrot_answer_20']
+            ];
+            
             if (/(\?)/ig.test(message.content)) {
                 let random = getRandomNumber(0, 100);
 
@@ -427,22 +431,22 @@ client.on("message", async message => {
                 ];
 
                 if (random > 0 && random <= 50) {
-                    message.channel.send(`<@${message.author.id}>, ${positivePhrases[getRandomNumber(0, positivePhrases.length - 1)]}`)
+                    message.channel.send(`<@${message.author.id}>, ${positivePhrases[getRandomNumber(0, positivePhrases.length)]}`)
                 }
                 else {
-                    message.channel.send(`<@${message.author.id}>, ${negativePhrases[getRandomNumber(0, negativePhrases.length - 1)]}`)
+                    message.channel.send(`<@${message.author.id}>, ${negativePhrases[getRandomNumber(0, negativePhrases.length)]}`)
                 }
             }
             else {
                 let needInvoice = true;
-                let reply = messages[getRandomNumber(0, messages.length - 1)]
+                let reply = messages[getRandomNumber(0, messages.length)]
 
                 if (/(\$user)/ig.test(reply)) {
                     needInvoice = false;
                     reply = reply.replace(/(\$user)/ig, `<@${message.author.id}>`);
                 }
 
-                message.react(`${reactions[getRandomNumber(0, reactions.length - 1)]}`);
+                message.react(`${reactions[getRandomNumber(0, reactions.length)]}`);
                 message.channel.send(`${needInvoice ? `<@${message.author.id}>,` : ''} ${reply}`);
             }
         }
